@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using static System.Net.Mime.MediaTypeNames;
 
 Console.WriteLine("Hello, World!");
 //string userDataDirPath = @"C:\Users\ormul\AppData\Local\Google\Chrome\User Data";
@@ -40,12 +41,37 @@ try
     {
         Console.WriteLine("Chrome iniciado. Aguardando página...");
 
-        driver.Navigate().GoToUrl("https://www.linkedin.com/jobs/?focusToMoreMenuTrigger=true");
+        driver.Navigate().GoToUrl("https://www.linkedin.com/jobs/");
 
         // Espera o carregamento da página
         Thread.Sleep(5000);
+        //Console.WriteLine(driver.PageSource);
 
-        Console.WriteLine("Página carregada. Verifique se o login foi mantido.");
+        var i = 0;
+        var iframes = driver.FindElements(By.TagName("iframe"));
+        foreach ( var iframe in iframes )
+        {
+            Console.WriteLine(iframe.GetAttribute("src"));
+            driver.SwitchTo().Frame(iframe);
+            Thread.Sleep(5000);
+            IWebElement searchInput = GetSearchBoxInput(driver);
+
+            var inputs = driver.FindElements(By.TagName("inputs"));
+            Console.WriteLine("-------" + driver.PageSource);
+            
+            foreach ( var input in inputs)
+            {
+                Console.WriteLine("-------" + input.GetAttribute("label"));
+            }
+            i++;
+            driver.SwitchTo().DefaultContent();
+        }
+
+        
+
+
+
+            Console.WriteLine("Página carregada. Verifique se o login foi mantido.");
         Console.WriteLine("Pressione ENTER para encerrar...");
         Console.ReadLine();
     }
@@ -59,6 +85,28 @@ catch (WebDriverException ex)
 catch (Exception ex)
 {
     Console.WriteLine($"Erro geral: {ex.Message}");
+}
+
+IWebElement GetSearchBoxInput(ChromeDriver driver)
+{
+    try
+    {
+        var inputs = driver.FindElements(By.TagName("input"));
+        foreach (var input in inputs)
+        {
+            var inputLabel = input.GetAttribute("label");
+            if(inputLabel == "Pesquisar cargo, competência ou empresa")
+            {
+                return input;
+            }
+        }
+    }
+    catch (Exception)
+    {
+        Console.WriteLine($"SearchBox não encontrada");
+        throw;
+    }
+    return null;
 }
 
 Console.ReadKey();

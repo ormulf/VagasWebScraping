@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "WebScraping Linkedin 1.52",
+  "version": "1.0",
+  "description": "Extensão de exemplo que injeta código na aba atual usando executeScript.",
+  "permissions": [ "scripting", "activeTab" ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "host_permissions": [ "<all_urls>" ]
+}
