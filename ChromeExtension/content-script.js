@@ -98,23 +98,32 @@ const pagination = async () => {
 }
 var lastScrollTop = 0;
 const handleScroll = async () => {
-    var elementJobList = document.getElementsByClassName('KRCxWXDYdQyAujpEeppSstprdoQhjFMgvvrvYE');
-    elementJobList[0].scrollTop = elementJobList[0].scrollHeight;
+    console.log('handleScroll');
+    var element = document.getElementsByClassName('scaffold-layout__list ');
+    console.log('scaffold-layout__list ' + element.length);
+    var divs = element[0].getElementsByTagName('div');
+    console.log('divs ' + divs.length);
+    var elementJobList = divs[6];
+    console.log('elementJobList ' + elementJobList.className);
+    elementJobList.scrollTop = elementJobList.scrollHeight;
     console.log('desceu scroll');
-    if (lastScrollTop != elementJobList[0].scrollTop) {
-        lastScrollTop = elementJobList[0].scrollTop;
+    if (lastScrollTop != elementJobList.scrollTop) {
+        lastScrollTop = elementJobList.scrollTop;
         await sleep(3000);
         await handleScroll();
     }
 }
 
 const handleScrapping = async () => {
+    console.log('handleScrapping');
     var returnPagination = true;
     while (returnPagination) {
         lastScrollTop = 0;
         await handleScroll();
         console.log('handleScroll');
-        document.getElementsByClassName('KRCxWXDYdQyAujpEeppSstprdoQhjFMgvvrvYE')[0].scrollTop = 0;
+        var element = document.getElementsByClassName('scaffold-layout__list ');
+        var divs = element[0].getElementsByTagName('div');
+        divs[6].scrollTop =0;
         await runLinks();
         console.log('runLinks');
         returnPagination = await pagination();
@@ -133,7 +142,7 @@ const runLinks = async () => {
         divs = lis[i].querySelectorAll('div');
         if (divs.length == 19) {
             divs[1].click();
-
+            console.log(divs[1].innerText);
             await sleep(3000);
             addJob();
         }
@@ -191,7 +200,7 @@ function addJob() {
     jobList.addItem(jobInfo);
     console.log('companyName: ' + companyName + ' - ' + 'title: ' + title);
 }
-
+console.log('start');
 var jobList = new LinkedinJobList();
 handleScrapping();
 
