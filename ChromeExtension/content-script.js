@@ -83,14 +83,21 @@ const pagination = async () => {
     var buttons = paginationElement[0].getElementsByTagName('button');
 
     for (let i = 0; i < buttons.length; i++) {
-        if (buttons[i].getAttribute('aria-label').split(" ").length==3) {
-            if (buttons[i].getAttribute('aria-label').split(" ")[2] != 'anterior' &&
-                buttons[i].getAttribute('aria-label').split(" ")[0] == 'Ver') {
-                buttons[i].click();
-                await sleep(5000);
-                console.log('mudou de pagina');
-                return true;
+        if (buttons[i].getAttribute('aria-label').split(" ").length == 3) {
+            if (pg < 5) {
+                if (buttons[i].getAttribute('aria-label').split(" ")[2] != 'anterior' &&
+                    buttons[i].getAttribute('aria-label').split(" ")[0] == 'Ver') {
+                    //alert('valida ai');
+                    await sleep(1000);
+                    buttons[i].click();
+                    pg++;                    
+                    //console.log('mudou de pagina');
+                    return true;
+                }
+            } else {
+                return false;
             }
+            
         }        
     }
     return false;
@@ -98,36 +105,35 @@ const pagination = async () => {
 }
 var lastScrollTop = 0;
 const handleScroll = async () => {
-    console.log('handleScroll');
     var element = document.getElementsByClassName('scaffold-layout__list ');
-    console.log('scaffold-layout__list ' + element.length);
     var divs = element[0].getElementsByTagName('div');
-    console.log('divs ' + divs.length);
     var elementJobList = divs[6];
-    console.log('elementJobList ' + elementJobList.className);
-    elementJobList.scrollTop = elementJobList.scrollHeight;
-    console.log('desceu scroll');
-    if (lastScrollTop != elementJobList.scrollTop) {
-        lastScrollTop = elementJobList.scrollTop;
-        await sleep(3000);
-        await handleScroll();
-    }
+    var lastValueScrollTop = elementJobList.scrollTop;
+    elementJobList.scrollTop = elementJobList.scrollTop + 200;
+    var valueScrollTop = elementJobList.scrollTop;    
+
+    while(lastValueScrollTop != valueScrollTop) {
+        lastValueScrollTop = valueScrollTop;  
+        elementJobList.scrollTop = elementJobList.scrollTop + 200;
+        valueScrollTop = elementJobList.scrollTop;
+        await sleep(1000);
+    }    
 }
 
 const handleScrapping = async () => {
-    console.log('handleScrapping');
+    //console.log('handleScrapping');
     var returnPagination = true;
-    while (returnPagination) {
+    while (returnPagination && go) {
         lastScrollTop = 0;
         await handleScroll();
-        console.log('handleScroll');
+        //console.log('handleScroll');
         var element = document.getElementsByClassName('scaffold-layout__list ');
         var divs = element[0].getElementsByTagName('div');
         divs[6].scrollTop =0;
         await runLinks();
-        console.log('runLinks');
+        //console.log('runLinks');
         returnPagination = await pagination();
-        console.log('pagination:' + returnPagination);
+        //console.log('pagination:' + returnPagination);
 
         await sleep(3000);
     }
@@ -136,25 +142,28 @@ const handleScrapping = async () => {
 
 const runLinks = async () => {
     var uls = document.querySelectorAll('ul');
-    lis = uls[8].querySelectorAll('li');
+    var lis = uls[8].querySelectorAll('li');
+    var pgJobCount = 0;
     addJob();
     for (let i = 1; i < lis.length; i++) {
         divs = lis[i].querySelectorAll('div');
         if (divs.length == 19) {
-            divs[1].click();
-            console.log(divs[1].innerText);
+            pgJobCount++;
+            divs[1].click();            
+            //console.log(divs[1].innerText);
             await sleep(3000);
             addJob();
         }
     }
+    console.log('pgJobCount:' + pgJobCount);
 
 }
 
 async function saveFile(title, json) {
-    console.log('oi1');
+    //console.log('oi1');
     try {
         // Open the save file picker and get a FileSystemFileHandle
-        console.log('oi2');
+        //console.log('oi2');
         const fileHandle = await window.showSaveFilePicker({
             suggestedName: title + '.json', // Suggested file name
             types: [{
@@ -162,17 +171,17 @@ async function saveFile(title, json) {
                 accept: { 'text/plain': ['.json'] },
             }],
         });
-        console.log('oi3');
+        //console.log('oi3');
         // Create a writable stream to write content to the file
         const writableStream = await fileHandle.createWritable();
-        console.log('oi4');
+        //console.log('oi4');
         // Write the desired content (e.g., a string or Blob)
         await writableStream.write(json);
-        console.log('oi5');
+        //console.log('oi5');
         // Close the stream to finalize the save operation
         await writableStream.close();
-        console.log('oi6');
-        console.log('File saved successfully!');
+        //console.log('oi6');
+        //console.log('File saved successfully!');
     } catch (error) {
         console.error('Error saving file:', error);
     }
@@ -200,8 +209,10 @@ function addJob() {
     jobList.addItem(jobInfo);
     console.log('companyName: ' + companyName + ' - ' + 'title: ' + title);
 }
-console.log('start');
+//console.log('start');
 var jobList = new LinkedinJobList();
+var pg = 0;
+var go = true;
 handleScrapping();
 
 

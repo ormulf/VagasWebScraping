@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "WebScraping Linkedin 1.59",
+  "name": "WebScraping Linkedin 1.66",
   "version": "1.0",
   "description": "Extensão de exemplo que injeta código na aba atual usando executeScript.",
   "permissions": [ "scripting", "activeTab" ],
