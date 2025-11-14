@@ -1,0 +1,4 @@
+﻿string[] pontuacoes = { ". ",", ", "; ", ": ", "! ", "? ", "\" ", "' " };
+
+
+Console.ReadKey();
